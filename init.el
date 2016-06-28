@@ -266,6 +266,13 @@ you should place your code here."
   (defun clang-format-bindings ()
     (define-key c++-mode-map [tab] 'clang-format-buffer))
 
+  ;;==Load theme
+  (load-theme 'deeper-blue)
+
+  ;;==Keybindings
+  (global-set-key (kbd "C-x C-y") 'avy-copy-line)
+
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
