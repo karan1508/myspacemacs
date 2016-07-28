@@ -23,16 +23,16 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     c-c++
+     (c-c++ :variables c-c++-enable-clang-support t)
      auto-completion
      ;; better-defaults
-     emacs-lisp
+     e
      git
      ;; markdown
      org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     (shell :variables
+           shell-default-height 30
+           shell-default-position 'bottom)
      spell-checking
      syntax-checking
      ;; version-control
@@ -41,7 +41,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(helm-gtags)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -76,7 +76,7 @@ values."
    ;; unchanged. (default 'emacs)
 
 
-   dotspacemacs-editing-style 'emacs
+   dotspacemacs-editing-style 'hybrid
    ;; If non nil output loading progress in `*Messages*' buffer. (default nil)
    dotspacemacs-verbose-loading nil
    ;; Specify the startup banner. Default value is `official', it displays
@@ -256,11 +256,11 @@ you should place your code here."
   ;;== Make it faster on windows OS
   (remove-hook 'find-file-hooks 'vc-find-file-hook)
   (setq w32-get-true-file-attributes nil)
-  
-  
+
   ;;== Related to C-C++ mode
   ;; Bind clang-format-region to C-M-tab in all modes:
   (global-set-key [C-M-tab] 'clang-format-region)
+
   ;; Bind clang-format-buffer to tab on the c++-mode only:
   (add-hook 'c++-mode-hook 'clang-format-bindings)
   (defun clang-format-bindings ()
@@ -272,6 +272,8 @@ you should place your code here."
   ;;==Keybindings
   (global-set-key (kbd "C-x C-y") 'avy-copy-line)
 
+  ;;==Mark safe variables
+  (put 'helm-make-build-dir 'safe-local-variable-p 'string)
 
   )
 
