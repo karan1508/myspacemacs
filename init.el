@@ -275,6 +275,14 @@ you should place your code here."
   ;;==Mark safe variables
   (put 'helm-make-build-dir 'safe-local-variable-p 'string)
 
+  ;;==Backup Settings
+  (setq backup-directory-alist `(("." . "~/.saves")))
+  (setq backup-by-copying t)
+  (setq delete-old-versions t
+        kept-new-versions 6
+        kept-old-versions 2
+        version-control t)
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
