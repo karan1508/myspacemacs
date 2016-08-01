@@ -26,10 +26,11 @@ values."
      (c-c++ :variables c-c++-enable-clang-support t)
      auto-completion
      ;; better-defaults
-     e
+     scala
      git
      ;; markdown
      org
+     themes-megapack
      (shell :variables
            shell-default-height 30
            shell-default-position 'bottom)
