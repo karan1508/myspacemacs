@@ -18,31 +18,42 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     ;; javascript
+     octave
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      (c-c++ :variables c-c++-enable-clang-support t)
+     gtags
+     java
+     ranger
+     pdf-tools
      auto-completion
      ;; better-defaults
      scala
+     evil-commentry
      git
      ;; markdown
      org
      themes-megapack
      (shell :variables
            shell-default-height 30
+           shell-enable-smart-eshell t
+           shell-default-term-shell "/bin/bash"
            shell-default-position 'bottom)
      spell-checking
-     syntax-checking
+     (syntax-checking :variable syntax-checking-enable-by-default t) 
+     python
+     ess
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(helm-gtags)
+   dotspacemacs-additional-packages '(helm-gtags doom-themes )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -103,6 +114,8 @@ values."
                          spacemacs-light
                          solarized-light
                          solarized-dark
+                         twilight
+                         twilight-anti-bright
                          leuven
                          monokai
                          zenburn)
@@ -110,11 +123,11 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Source Code Pro for Powerline"
+                               :size 14 
                                :weight normal
                                :width normal
-                               :powerline-scale 1.1)
+                               :powerline-scale 1.5)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The leader key accessible in `emacs state' and `insert state'
@@ -254,6 +267,12 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+
+  ;;==Org load languages for eval
+  ;; (org-babel-do-load-languages
+  ;;  'org-babel-load-languages
+  ;;  ''(shell . t))
+
   ;;== Make it faster on windows OS
   (remove-hook 'find-file-hooks 'vc-find-file-hook)
   (setq w32-get-true-file-attributes nil)
@@ -267,14 +286,15 @@ you should place your code here."
   (defun clang-format-bindings ()
     (define-key c++-mode-map [tab] 'clang-format-buffer))
 
-  ;;==Load theme
-  (load-theme 'deeper-blue)
 
   ;;==Keybindings
   (global-set-key (kbd "C-x C-y") 'avy-copy-line)
+  (global-set-key (kbd "C-q") 'sp-up-sexp)
 
   ;;==Mark safe variables
   (put 'helm-make-build-dir 'safe-local-variable-p 'string)
+
+  (add-hook 'after-init-hook 'global-flycheck-mode)
 
   ;;==Backup Settings
   (setq backup-directory-alist `(("." . "~/.saves")))
@@ -283,6 +303,23 @@ you should place your code here."
         kept-new-versions 6
         kept-old-versions 2
         version-control t)
+
+  (require 'doom-themes)
+
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
+  ;; may have their own settings.
+  (load-theme 'doom-one t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
+
 
   )
 
