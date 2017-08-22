@@ -18,6 +18,8 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     csv
+     javascript
      ;; javascript
      octave
      ;; ----------------------------------------------------------------
@@ -26,6 +28,7 @@ values."
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      (c-c++ :variables c-c++-enable-clang-support t)
+     lua
      gtags
      java
      ranger
@@ -33,16 +36,17 @@ values."
      auto-completion
      ;; better-defaults
      scala
-     evil-commentry
+     ;; evil-commentry
      git
-     ;; markdown
+     (markdown :variables markdown-live-preview-engine 'vmd)
      org
      themes-megapack
      (shell :variables
-           shell-default-height 30
-           shell-enable-smart-eshell t
-           shell-default-term-shell "/bin/bash"
-           shell-default-position 'bottom)
+            shell-default-shell 'multi-term
+            shell-default-height 60
+            ;; shell-enable-smart-eshell t
+            shell-default-term-shell "/bin/zsh"
+            shell-default-position 'top)
      spell-checking
      (syntax-checking :variable syntax-checking-enable-by-default t) 
      python
@@ -76,7 +80,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https nil
+   dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -110,21 +114,17 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
-                         spacemacs-light
-                         solarized-light
-                         solarized-dark
-                         twilight
-                         twilight-anti-bright
+   dotspacemacs-themes '(doom-molokai 
+                         afternoon
                          leuven
-                         monokai
                          zenburn)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro for Powerline"
-                               :size 14 
+   ;; dotspacemacs-default-font '("Source Code Pro for Powerline"
+   dotspacemacs-default-font '("Source Code Pro"
+                               :size 18
                                :weight normal
                                :width normal
                                :powerline-scale 1.5)
@@ -312,7 +312,7 @@ you should place your code here."
 
   ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
   ;; may have their own settings.
-  (load-theme 'doom-one t)
+  ;; (load-theme 'doom-vibrant  t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -320,6 +320,23 @@ you should place your code here."
   ;; Enable custom neotree theme
   (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
 
+  ;;==Org mode keywords
+  (setq org-todo-keywords
+        '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "CANCELLED" "DELEGATED")))
+
+  ;;==Set terminal encoding
+  (defadvice multi-term (after advise-multi-term-coding-system)
+    (set-buffer-process-coding-system 'utf-8-unix 'utf-8-unix))
+  (ad-activate 'multi-term)
+  (prefer-coding-system 'utf-8)
+  (setq system-uses-terminfo nil)
+  (setq system-uses-terminfo nil)
+  (set-terminal-coding-system 'utf-8-unix)
+
+  (spacemacs/set-leader-keys "ob" 'magit-blame)
+  (spacemacs/set-leader-keys "or" 'rename-buffer)
+  (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
+  (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
 
   )
 
