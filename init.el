@@ -114,7 +114,7 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-molokai 
+   dotspacemacs-themes '(darkmine 
                          afternoon
                          leuven
                          zenburn)
@@ -122,8 +122,8 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   ;; dotspacemacs-default-font '("Source Code Pro for Powerline"
-   dotspacemacs-default-font '("Source Code Pro"
+   dotspacemacs-default-font '("Source Code Pro for Powerline"
+   ;; dotspacemacs-default-font '("Source Code Pro"
                                :size 18
                                :weight normal
                                :width normal
@@ -337,7 +337,18 @@ you should place your code here."
   (spacemacs/set-leader-keys "or" 'rename-buffer)
   (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
   (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
-
+  (add-to-list 'load-path (expand-file-name "Pymacs" "/home/karan/.emacs.d/elisp/" ))
+  (require 'pymacs)
+  (autoload 'pymacs-apply "pymacs")
+  (autoload 'pymacs-call "pymacs")
+  (autoload 'pymacs-eval "pymacs" nil t)
+  (autoload 'pymacs-exec "pymacs" nil t)
+  (autoload 'pymacs-load "pymacs" nil t)
+  (autoload 'pymacs-autoload "pymacs")
+  (setq ropemacs-enable-shortcuts nil)
+  (setq ropemacs-local-prefix "C-c C-p")
+  (require 'pymacs)
+  (pymacs-load "ropemacs" "rope-")
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
