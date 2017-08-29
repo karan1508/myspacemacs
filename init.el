@@ -18,6 +18,7 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     vimscript
      csv
      javascript
      ;; javascript
@@ -114,9 +115,10 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(darkmine 
-                         afternoon
-                         leuven
+   dotspacemacs-themes '(spacemacs-dark
+                         spacemacs-light
+                         doom-one
+                         doom-tommorrow-night
                          zenburn)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
@@ -333,10 +335,13 @@ you should place your code here."
   (setq system-uses-terminfo nil)
   (set-terminal-coding-system 'utf-8-unix)
 
+  ;;== My leader key shortcuts
   (spacemacs/set-leader-keys "ob" 'magit-blame)
   (spacemacs/set-leader-keys "or" 'rename-buffer)
   (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
   (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
+
+  ;;== Python re-factor support
   (add-to-list 'load-path (expand-file-name "Pymacs" "/home/karan/.emacs.d/elisp/" ))
   (require 'pymacs)
   (autoload 'pymacs-apply "pymacs")
@@ -349,6 +354,21 @@ you should place your code here."
   (setq ropemacs-local-prefix "C-c C-p")
   (require 'pymacs)
   (pymacs-load "ropemacs" "rope-")
+
+  ;;== Keep emacs in server mode
+  (server-start)
+
+  ;;== Env variable for python workon command 
+  (setenv "WORKON_HOME" "/deploy/kurma-local/")
+
+  ;;== Enable/Disable fill column indicator
+  (spacemacs/add-to-hooks 'turn-off-fci-mode '(org-mode-hook))
+  (spacemacs/add-to-hooks 'turn-on-fci-mode '(python-mode-hook))
+
+  ;;== Set org agenda files
+  (setq org-agenda-files (list "~/Dropbox/Org/notes.org"
+                               "~/Calendars/schedule.org"
+                               ))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
