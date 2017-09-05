@@ -18,6 +18,7 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     html
      vimscript
      csv
      javascript
@@ -309,8 +310,8 @@ you should place your code here."
   (require 'doom-themes)
 
   ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  ;; (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+  ;;       doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
   ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
   ;; may have their own settings.
@@ -369,6 +370,10 @@ you should place your code here."
   (setq org-agenda-files (list "~/Dropbox/Org/notes.org"
                                "~/Calendars/schedule.org"
                                ))
+
+  ;;== Enable line numbers
+  (setq global-linum-mode t)
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
