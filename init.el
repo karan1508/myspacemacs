@@ -24,12 +24,14 @@ values."
      javascript
      ;; javascript
      octave
+     ;; latex
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      (c-c++ :variables c-c++-enable-clang-support t)
+     org
      lua
      gtags
      java
@@ -40,8 +42,9 @@ values."
      scala
      ;; evil-commentry
      git
+     github
      (markdown :variables markdown-live-preview-engine 'vmd)
-     org
+     
      themes-megapack
      (shell :variables
             shell-default-shell 'multi-term
@@ -50,7 +53,8 @@ values."
             shell-default-term-shell "/bin/zsh"
             shell-default-position 'top)
      spell-checking
-     (syntax-checking :variable syntax-checking-enable-by-default t) 
+     (syntax-checking :variable syntax-checking-enable-by-default t)
+     ycmd
      python
      ess
      ;; version-control
@@ -116,7 +120,10 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
+   dotspacemacs-themes '(nord
+                         darkmine
+                         dracula
+                         spacemacs-dark
                          spacemacs-light
                          doom-one
                          doom-tommorrow-night
@@ -126,7 +133,7 @@ values."
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro for Powerline"
-   ;; dotspacemacs-default-font '("Source Code Pro"
+   ;; dotspacemacs-default-font '("Anonymous Pro for Powerline"
                                :size 18
                                :weight normal
                                :width normal
@@ -183,7 +190,7 @@ values."
    dotspacemacs-helm-no-header nil
    ;; define the position to display `helm', options are `bottom', `top',
    ;; `left', or `right'. (default 'bottom)
-   dotspacemacs-helm-position 'bottom
+   dotspacemacs-helm-position 'left
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-micro-state nil
@@ -226,7 +233,7 @@ values."
    ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
    ;; derivatives. If set to `relative', also turns on relative line numbers.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers 'relative
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
    ;; (default nil)
    dotspacemacs-smartparens-strict-mode nil
@@ -266,6 +273,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
 layers configuration.
+
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
@@ -310,8 +318,8 @@ you should place your code here."
   (require 'doom-themes)
 
   ;; Global settings (defaults)
-  ;; (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-  ;;       doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
 
   ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
   ;; may have their own settings.
@@ -324,8 +332,18 @@ you should place your code here."
   (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
 
   ;;==Org mode keywords
-  (setq org-todo-keywords
-        '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "CANCELLED" "DELEGATED")))
+  (with-eval-after-load 'org
+    ;; Here goes the org configuration
+    (setq org-todo-keywords
+          '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "CANCELLED" "DELEGATED")))
+    (setq org-hierarchical-todo-statistics nil)
+    (setq org-fontify-done-headline t)
+    (set-face-attribute 'org-done nil :strike-through t)
+    (set-face-attribute 'org-headline-done nil
+                        :strike-through t
+                        :foreground "light gray")
+
+    )
 
   ;;==Set terminal encoding
   (defadvice multi-term (after advise-multi-term-coding-system)
@@ -336,11 +354,6 @@ you should place your code here."
   (setq system-uses-terminfo nil)
   (set-terminal-coding-system 'utf-8-unix)
 
-  ;;== My leader key shortcuts
-  (spacemacs/set-leader-keys "ob" 'magit-blame)
-  (spacemacs/set-leader-keys "or" 'rename-buffer)
-  (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
-  (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
 
   ;;== Python re-factor support
   (add-to-list 'load-path (expand-file-name "Pymacs" "/home/karan/.emacs.d/elisp/" ))
@@ -371,10 +384,38 @@ you should place your code here."
                                "~/Calendars/schedule.org"
                                ))
 
-  ;;== Enable line numbers
-  (setq global-linum-mode t)
+  ;;== Tramp setup
+  (setq tramp-default-method "ssh")
+
+  (setq-default
+   linum-format "%4d \u2502"
+   linum-relative-format "%4s \u2502"
+   )
+
+  ;;== Fly-check for virtualenv
+  ;; (add-hook 'python-mode-hook #'flycheck-virtualenv-setup)
+
+  (defun connect-neon1 ()
+    (interactive)
+    (dired "/stsys@neon1:/home/stsys/kd"))
+  (defun connect-aadisandbox ()
+    (interactive)
+    (dired "/stsys@dev:/data/work"))
+
+  ;;== YCMD
+  (add-hook 'python-mode-hook 'ycmd-mode)
+  (setq ycmd-server-command (list "python" (file-truename "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd")))
+  (setq ycmd-force-semantic-completion t)
+
+  ;;== My leader key shortcuts
+  (spacemacs/set-leader-keys "ob" 'magit-blame)
+  (spacemacs/set-leader-keys "or" 'rename-buffer)
+  (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
+  (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
+  ;; (spacemacs/set-leader-keys "sb," 'connect-aadisandbox)
+  ;; (spacemacs/set-leader-keys "ne1," 'connect-neon1)
+  ;; Do not write anything past this comment. This is where Emacs will
+  ;; auto-generate custom variable definitions.
 
   )
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
