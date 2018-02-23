@@ -18,7 +18,10 @@ values."
    ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
+     rust
+     yaml
      html
+     rust
      vimscript
      csv
      javascript
@@ -37,7 +40,10 @@ values."
      java
      ranger
      pdf-tools
-     auto-completion
+     ;; ( auto-completion : variables
+     ;;                   auto-completion-enable-snippets-in-popup t
+     ;;                   auto-completion-enable-help-tooltip t
+     ;;                   auto-completion-complete-with-key-sequence "jk")
      ;; better-defaults
      scala
      ;; evil-commentry
@@ -55,7 +61,7 @@ values."
      spell-checking
      (syntax-checking :variable syntax-checking-enable-by-default t)
      ycmd
-     python
+     (python :variables python-test-runner 'pytest)
      ess
      ;; version-control
      )
@@ -63,7 +69,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(helm-gtags doom-themes )
+   dotspacemacs-additional-packages '(helm-gtags doom-themes wakatime-mode jedi doom-themes)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -120,24 +126,18 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(nord
-                         darkmine
-                         dracula
-                         spacemacs-dark
-                         spacemacs-light
-                         doom-one
-                         doom-tommorrow-night
-                         zenburn)
+   dotspacemacs-themes '( spacemacs-dark
+                         spacemacs-light )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro for Powerline"
-   ;; dotspacemacs-default-font '("Anonymous Pro for Powerline"
+   dotspacemacs-default-font '("Hack"
                                :size 18
                                :weight normal
                                :width normal
-                               :powerline-scale 1.5)
+                               :powerline-scale 1)
+
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The leader key accessible in `emacs state' and `insert state'
@@ -278,6 +278,9 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+  ;; Powerline default seperators
+  (setq powerline-default-separator 'nil)
+
 
   ;;==Org load languages for eval
   ;; (org-babel-do-load-languages
@@ -315,7 +318,10 @@ you should place your code here."
         kept-old-versions 2
         version-control t)
 
-  (require 'doom-themes)
+  ;;==Wakatime settings
+  (setq wakatime-api-key "8c1b06b3-fa1f-40ed-a254-a49aaf50c7cf")
+  (global-wakatime-mode)
+
 
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -356,28 +362,29 @@ you should place your code here."
 
 
   ;;== Python re-factor support
-  (add-to-list 'load-path (expand-file-name "Pymacs" "/home/karan/.emacs.d/elisp/" ))
-  (require 'pymacs)
-  (autoload 'pymacs-apply "pymacs")
-  (autoload 'pymacs-call "pymacs")
-  (autoload 'pymacs-eval "pymacs" nil t)
-  (autoload 'pymacs-exec "pymacs" nil t)
-  (autoload 'pymacs-load "pymacs" nil t)
-  (autoload 'pymacs-autoload "pymacs")
-  (setq ropemacs-enable-shortcuts nil)
-  (setq ropemacs-local-prefix "C-c C-p")
-  (require 'pymacs)
-  (pymacs-load "ropemacs" "rope-")
+  ;; (add-to-list 'load-path (expand-file-name "Pymacs" "/home/karan/.emacs.d/elisp/" ))
+  ;; (require 'pymacs)
+  ;; (autoload 'pymacs-apply "pymacs")
+  ;; (autoload 'pymacs-call "pymacs")
+  ;; (autoload 'pymacs-eval "pymacs" nil t)
+  ;; (autoload 'pymacs-exec "pymacs" nil t)
+  ;; (autoload 'pymacs-load "pymacs" nil t)
+  ;; (autoload 'pymacs-autoload "pymacs")
+  ;; (setq ropemacs-enable-shortcuts nil)
+  ;; (setq ropemacs-local-prefix "C-c C-p")
+
+  ;; (require 'pymacs)
+  ;; (pymacs-load "ropemacs" "rope-")
 
   ;;== Keep emacs in server mode
   (server-start)
 
   ;;== Env variable for python workon command 
-  (setenv "WORKON_HOME" "/deploy/kurma-local/")
+  (setenv "WORKON_HOME" "/data/home/karan/.envs/")
 
   ;;== Enable/Disable fill column indicator
   (spacemacs/add-to-hooks 'turn-off-fci-mode '(org-mode-hook))
-  (spacemacs/add-to-hooks 'turn-on-fci-mode '(python-mode-hook))
+  ;; (spacemacs/add-to-hooks 'turn-on-fci-mode '(python-mode-hook))
 
   ;;== Set org agenda files
   (setq org-agenda-files (list "~/Dropbox/Org/notes.org"
@@ -403,19 +410,32 @@ you should place your code here."
     (dired "/stsys@dev:/data/work"))
 
   ;;== YCMD
-  (add-hook 'python-mode-hook 'ycmd-mode)
-  (setq ycmd-server-command (list "python" (file-truename "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd")))
-  (setq ycmd-force-semantic-completion t)
+  ;; (add-hook 'python-mode-hook 'ycmd-mode)
+  ;; (setq ycmd-server-command (list "python" (file-truename "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd")))
+  ;; (setq ycmd-force-semantic-completion t)
+
+  ;;==Jedi
+  ;; (add-hook 'python-mode-hook 'jedi:setup)
+  ;; (setq jedi:complete-on-dot)
+
+
 
   ;;== My leader key shortcuts
   (spacemacs/set-leader-keys "ob" 'magit-blame)
   (spacemacs/set-leader-keys "or" 'rename-buffer)
   (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
   (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
+
   ;; (spacemacs/set-leader-keys "sb," 'connect-aadisandbox)
   ;; (spacemacs/set-leader-keys "ne1," 'connect-neon1)
   ;; Do not write anything past this comment. This is where Emacs will
   ;; auto-generate custom variable definitions.
+
+  (add-hook 'python-mode-hook 'jedi:setup)
+  (setq jedi:complete-on-dot t)
+
+
+
 
   )
 
