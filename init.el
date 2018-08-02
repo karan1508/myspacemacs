@@ -27,7 +27,7 @@ values."
      javascript
      ;; javascript
      octave
-     ;; latex
+     latex
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -50,14 +50,14 @@ values."
      git
      github
      (markdown :variables markdown-live-preview-engine 'vmd)
-     
-     themes-megapack
+     (themes-megapack :packages (not doom-tomorrow-night-theme))
      (shell :variables
             shell-default-shell 'multi-term
             shell-default-height 60
+            shell-default-width 40
             ;; shell-enable-smart-eshell t
             shell-default-term-shell "/bin/zsh"
-            shell-default-position 'top)
+            shell-default-position 'left)
      spell-checking
      (syntax-checking :variable syntax-checking-enable-by-default t)
      ycmd
@@ -69,7 +69,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(helm-gtags doom-themes wakatime-mode jedi doom-themes)
+   dotspacemacs-additional-packages '(helm-gtags doom-themes wakatime-mode jedi doom-themes evil-terminal-cursor-changer evil-mc xclip)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -126,14 +126,15 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '( spacemacs-dark
+   dotspacemacs-themes '(doom-tomorrow-night
+                         spacemacs-dark
                          spacemacs-light )
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   dotspacemacs-default-font '("Hack"
-                               :size 18
+   dotspacemacs-default-font '("Source Code Pro for Powerline"
+                               :size 16
                                :weight normal
                                :width normal
                                :powerline-scale 1)
@@ -190,7 +191,7 @@ values."
    dotspacemacs-helm-no-header nil
    ;; define the position to display `helm', options are `bottom', `top',
    ;; `left', or `right'. (default 'bottom)
-   dotspacemacs-helm-position 'left
+   dotspacemacs-helm-position 'bottom
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
    dotspacemacs-enable-paste-micro-state nil
@@ -425,6 +426,8 @@ you should place your code here."
   (spacemacs/set-leader-keys "or" 'rename-buffer)
   (spacemacs/set-leader-keys "o." 'python-indent-shift-right)
   (spacemacs/set-leader-keys "o," 'python-indent-shift-left)
+  (spacemacs/set-leader-keys "ok" 'magit-run-gitk-all)
+
 
   ;; (spacemacs/set-leader-keys "sb," 'connect-aadisandbox)
   ;; (spacemacs/set-leader-keys "ne1," 'connect-neon1)
@@ -435,7 +438,49 @@ you should place your code here."
   (setq jedi:complete-on-dot t)
 
 
+  (unless (display-graphic-p)
+    (require 'evil-terminal-cursor-changer)
+    (evil-terminal-cursor-changer-activate) ; or (etcc-on)
+    )
 
+  (setq evil-motion-state-cursor 'box)  ; █
+  (setq evil-visual-state-cursor 'box)  ; █
+  (setq evil-normal-state-cursor 'box)  ; █
+  (setq evil-insert-state-cursor 'bar)  ; ⎸
+  (setq evil-emacs-state-cursor  'hbar) ; _
+
+  (defun bb/setup-term-mode ()
+    (evil-local-set-key 'insert (kbd "C-r") 'bb/send-C-r))
+
+  (defun bb/send-C-r ()
+    (interactive)
+    (term-send-raw-string "\C-r"))
+
+  (add-hook 'term-mode-hook 'bb/setup-term-mode)
+  (add-hook 'doc-view-mode-hook 'auto-revert-mode)
+
+
+
+  ;; Multiple cursors
+  (use-package evil-mc
+    :ensure t
+    :config
+
+    (defun evil--mc-make-cursor-at-col (startcol _endcol orig-line)
+      (move-to-column startcol)
+      (unless (= (line-number-at-pos) orig-line)
+        (evil-mc-make-cursor-here)))
+    (defun evil-mc-make-vertical-cursors (beg end)
+      (interactive (list (region-beginning) (region-end)))
+      (evil-mc-pause-cursors)
+      (apply-on-rectangle #'evil--mc-make-cursor-at-col
+                          beg end (line-number-at-pos (point)))
+      (evil-mc-resume-cursors)
+      (evil-normal-state)
+      (move-to-column (evil-mc-column-number (if (> end beg)
+                                                 beg
+                                               end)))))
+  (global-evil-mc-mode t)
 
   )
 
